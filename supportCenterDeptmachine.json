@@ -1,0 +1,50 @@
+{
+  "Comment": "A simple AWS Step Functions state machine for application support ticket case management.",
+  "StartAt": "Open Case",
+  "States": {
+    "Open Case": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Next": "Assign Case"
+    },
+    "Assign Case": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Next": "Work on Case"
+    },
+    "Work on Case": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Next": "Is Case Resolved"
+    },
+    "Is Case Resolved": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.caseResolved",
+          "BooleanEquals": true,
+          "Next": "Close Case"
+        },
+        {
+          "Variable": "$.caseResolved",
+          "BooleanEquals": false,
+          "Next": "Escalate Case"
+        }
+      ]
+    },
+    "Close Case": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "End": true
+    },
+    "Escalate Case": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Next": "Fail"
+    },
+    "Fail": {
+      "Type": "Fail",
+      "Cause": "Engage Tier 2 Support."
+    }
+  }
+}
